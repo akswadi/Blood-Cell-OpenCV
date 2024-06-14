@@ -1,0 +1,45 @@
+import cv2
+import numpy as np
+import os
+
+def color_threshold(image):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower_hsv = np.array([103, 67, 182])
+    upper_hsv = np.array([185, 172, 250])
+    mask = cv2.inRange(hsv_image, lower_hsv, upper_hsv)
+    result = cv2.bitwise_or(image, image, mask=mask)
+    return result, mask
+
+input_dir = 'Images'
+output_dir = 'Results'
+os.makedirs(output_dir, exist_ok=True)
+
+min_contour_area = 1200  # Minimum contour area threshold for drawing a bounding box
+
+for filename in os.listdir(input_dir):
+    if filename.endswith('.jpg') or filename.endswith('.png'):
+        input_img_path = os.path.join(input_dir, filename)
+        image_bgr = cv2.imread(input_img_path)
+        if image_bgr is not None:
+            image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+            thresholded_image, mask = color_threshold(image_rgb)
+            
+            # Find contours in the mask
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            # Draw bounding boxes around contours with area above the threshold
+            for contour in contours:
+                area = cv2.contourArea(contour)
+                if area > min_contour_area:
+                    x, y, w, h = cv2.boundingRect(contour)
+                    cv2.rectangle(image_rgb, (x-20, y-20), (x + w+20, y + h+20), (0, 255, 0), 2)
+            
+            # Convert the thresholded image back to BGR for saving
+            thresholded_image_bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
+            
+            # Save the processed image with bounding boxes
+            output_img_path = os.path.join(output_dir, filename)
+            cv2.imwrite(output_img_path, thresholded_image_bgr)
+            print(f"Processed: {filename}")
+
+print("Done", output_dir)
