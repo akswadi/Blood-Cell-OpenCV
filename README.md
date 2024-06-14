@@ -14,6 +14,6 @@ This script processes images by cropping and rotating them.
 ### Usage Instructions
 
 1. Place the images you want to process in the `Images` directory.
-2. Find out the ideal colour range for WBC/RBC detection using 'HSV_VALS.py' Copy and paste those values in the original code
+2. Find out the ideal colour range for WBC/RBC detection using `HSV_VALS.py` Copy and paste those values in the original code
 3. Run the script, and it will process the images and save the results in two separate directories for WBC and RBC
 
